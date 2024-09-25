@@ -1,0 +1,5 @@
+# pixi environments
+.pixi
+*.egg-info
+european_wholesale_electricity_price_data_hourly
+european_wholesale_electricity_price_data_hourly.zip
