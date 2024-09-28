@@ -267,6 +267,18 @@ def optimize_schedule(
     )
 
 
+def evaluate_schedule(schedule, electricity_price):
+    assert schedule.charge.shape[0] == electricity_price.shape[0]
+
+    cost = (schedule.charge * electricity_price).sum()
+    gain = (
+        schedule.discharge
+        * electricity_price
+        * schedule.battery_params["discharge_efficiency"]
+    ).sum()
+    return float(gain - cost)
+
+
 # %%
 res = optimize_schedule(
     average_weekly_price(electricity_price_all, "ESP")["price_euro_MWhe"].to_numpy(),
@@ -275,6 +287,20 @@ res.plot()
 # %%
 res.print_summary()
 
+# %%
+
+assert (
+    abs(
+        evaluate_schedule(
+            res,
+            average_weekly_price(electricity_price_all, "ESP")[
+                "price_euro_MWhe"
+            ].to_numpy(),
+        )
+        - res.revenue
+    )
+    < 1e-6
+)
 # %%
 res = optimize_schedule(
     average_weekly_price(electricity_price_all, "FRA")["price_euro_MWhe"].to_numpy(),
